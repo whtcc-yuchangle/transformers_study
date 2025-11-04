@@ -1,0 +1,1 @@
+{"default": {"features": {"instruction": {"_type": "Value"}, "question": {"_type": "Value"}, "think": {"_type": "Value"}, "answer": {"_type": "Value"}, "metrics": {"_type": "Value"}}, "splits": {"train": {"name": "train", "dataset_name": "delicate_medical_r1_data"}}}}
