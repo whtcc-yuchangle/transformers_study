@@ -1,3 +1,7 @@
+
+# torchrun --nproc-per-node=2 03_ddp_torch_demo.py
+# use V100*2 to train
+
 import os
 		
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
@@ -25,6 +29,8 @@ class MyDataset(Dataset):
     
     def __len__(self):
         return len(self.data)
+    
+dist.init_process_group(backend="nccl")
 
 data = pd.read_csv("./ChnSentiCorp_htl_all.csv")
 data = data.dropna()
@@ -36,7 +42,7 @@ print(f'trainset size : {len(trainset)}, validset size : {len(validset)}')
 for i in range(5):
     print(trainset[i])
 
-tokenizer = BertTokenizer.from_pretrained("hfl/chinese-roberta-wwm-ext")
+tokenizer = BertTokenizer.from_pretrained("/tmp/pretrainmodel/chinese-roberta-wwm-ext")
 
 def collate_func(batch):
     texts, labels = [], []
@@ -47,10 +53,10 @@ def collate_func(batch):
     inputs["labels"] = torch.tensor(labels)
     return inputs
 
-trainloader = DataLoader(trainset, batch_size=32, collate_fn=collate_func, sampler=DistributedSampler(trainset))
-validloader = DataLoader(validset, batch_size=64, collate_fn=collate_func, sampler=DistributedSampler(validset))
+trainloader = DataLoader(trainset, batch_size=128, collate_fn=collate_func, sampler=DistributedSampler(trainset))
+validloader = DataLoader(validset, batch_size=256, collate_fn=collate_func, sampler=DistributedSampler(validset))
 
-model = BertForSequenceClassification.from_pretrained("hfl/chinese-roberta-wwm-ext")
+model = BertForSequenceClassification.from_pretrained("/tmp/pretrainmodel/chinese-roberta-wwm-ext")
 
 if torch.cuda.is_available():
     model = model.to(int(os.environ["LOCAL_RANK"]))
@@ -76,7 +82,7 @@ def evaluate():
     dist.all_reduce(acc_num)
     return acc_num / len(validset)
 
-def train(epoch=3, log_step=100):
+def train(epoch=5, log_step=20):
     global_step = 0
     for ep in range(epoch):
         model.train()
