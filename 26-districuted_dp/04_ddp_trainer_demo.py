@@ -1,3 +1,7 @@
+
+# torchrun --nproc-per-node=2 04_ddp_trainer_demo.py
+# use V100*2 to train
+
 import os
 		
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
@@ -6,6 +10,10 @@ import evaluate
 
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments, BertTokenizer, BertForSequenceClassification, DataCollatorWithPadding
 from datasets import load_dataset
+
+def print_rank_0(info):
+    if int(os.environ["RANK"]) == 0:
+        print(info)
 
 dataset = load_dataset("csv", data_files="./ChnSentiCorp_htl_all.csv", split="train")
 dataset = dataset.filter(lambda x: x["review"] is not None)
@@ -42,7 +50,7 @@ train_args = TrainingArguments(output_dir="./checkpoints",      # 输出文件�
                                per_device_eval_batch_size=256,  # 验证时的batch_size
                                logging_steps=20,                # log 打印的频率
                                eval_strategy="steps",           # 评估策略
-                               save_strategy="epoch",           # 保存策略
+                               save_strategy="steps",           # 保存策略
                                save_total_limit=3,              # 最大保存数
                                learning_rate=2e-5,              # 学习率
                                weight_decay=0.01,               # weight_decay
