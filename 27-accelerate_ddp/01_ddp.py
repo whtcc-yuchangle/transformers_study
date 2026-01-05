@@ -1,4 +1,7 @@
 
+# accelerate config
+# accelerate launch 01_ddp.py
+
 import os
 		
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
