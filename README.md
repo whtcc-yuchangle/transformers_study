@@ -113,6 +113,13 @@ huggingface-cli download --repo-type dataset --resume-download wikitext --local-
 - `torch` — PyTorch 深度学习框架
 - `modelscope` — 部分模型使用魔搭社区加载
 
+安装命令：
+
+```bash
+pip install transformers datasets evaluate peft accelerate gradio optimum sentencepiece
+pip install scikit-learn pandas matplotlib tensorboard nltk rouge
+```
+
 ## 常用模型与数据集
 
 **模型**：`chinese-roberta-wwm-ext`、ChatGLM3-6B、Llama-3.2-1B、Qwen3-1.7B/8B/30B-A3B
